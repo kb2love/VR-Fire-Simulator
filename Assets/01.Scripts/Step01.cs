@@ -23,7 +23,9 @@ public class Step01 : MonoBehaviour
 
     [SerializeField] AudioClip teacherGuid03;
 
-    [SerializeField] AudioClip fireWarningClip;     //화재경고음 클립
+    [SerializeField] AudioClip fireWarningClip;         // 화재경고음 클립
+
+    [SerializeField] AudioClip fireWarningClipChange;   // 화재 경고음을 반복시키기 위한 클립 
 
     [SerializeField] AudioClip clikClip;            // 클릭 오디오 클립
 
@@ -33,23 +35,15 @@ public class Step01 : MonoBehaviour
 
     [SerializeField] Animator teacherAni;           // 선생님의 애니메이터
 
-    [SerializeField] Animator kidAni01;             // 아이 1의 애니메이터
-
-    [SerializeField] Animator kidAni02;
-
-    [SerializeField] Animator kidAni03;
+    [SerializeField] List<Animator> kidAnimations = new List<Animator>();
 
     [Header("Character")]
 
-    [SerializeField] Transform player;              // 플레이어를 이동시킬 트랜스폼
+    [SerializeField] Transform playerTr;              // 플레이어를 이동시킬 트랜스폼
 
-    [SerializeField] Transform teacher;             // 선생님을 이동시킬 트랜스폼
+    [SerializeField] Transform teacherTr;             // 선생님을 이동시킬 트랜스폼
 
-    [SerializeField] Transform kid01;               //아이 1을 움직일 트랜스폼
-
-    [SerializeField] Transform kid02;
-
-    [SerializeField] Transform kid03;
+    [SerializeField] List<Transform> kidsTr = new List<Transform>();
 
     AudioManager audioManager;                  // 오디오 매니저를 사용하기 위한 변수
 
@@ -61,7 +55,7 @@ public class Step01 : MonoBehaviour
 
         audioManager = gameObject.AddComponent<AudioManager>(); // 네임 스페이스로 제작 해 놓은 클래스(모노비헤이버상속)
         audioManager.NarrationPlay(stepAudioSource, narration, 1.0f);      //생성된 오디오 매니저 클라스의 나레이션 메서드를 사용 할 수 있다
-        
+
 
         teacherAni.SetTrigger("TalikTrigger");
     }
@@ -93,16 +87,14 @@ public class Step01 : MonoBehaviour
             audioManager.FireWarningPlay(warningAudioSource, fireWarningClip);
             teacherAni.SetTrigger("IsSurprise");
 
-            kidAni01.SetTrigger("StandUp");
-            kidAni02.SetTrigger("StandUp");
-            kidAni03.SetTrigger("StandUp");
-
-            kid01.DOMoveZ(1.11f, 1.0f);
-            kid02.DOMoveZ(1.11f, 1.0f);
-            kid03.DOMoveZ(1.11f, 1.0f);
+            for (int i = 0; i < kidAnimations.Count; i++)
+            {
+                kidAnimations[i].SetTrigger("StandUp");
+                kidsTr[i].DOMoveZ(1.11f, 1.0f);
+            }
         });
         seq.AppendInterval(2.0f);
-        seq.AppendCallback(() => FireWarningClipChange());  //화재경고음의 시작부분을 바꿀 시퀀스
+        seq.AppendCallback(() => warningAudioSource.clip = fireWarningClipChange);  //화재경고음의 시작부분을 바꿀 시퀀스
         seq.AppendInterval(4.0f);
         seq.AppendCallback(() =>
         {
@@ -114,8 +106,6 @@ public class Step01 : MonoBehaviour
         seq.AppendInterval(7.0f);
         seq.AppendCallback(() => teacherSource.PlayOneShot(teacherGuid02, 1.0f));       //선생님의 2번째 지시 오디오 실행
         seq.AppendInterval(7.0f);
-        seq.AppendCallback(() => teacherSource.PlayOneShot(teacherGuid03, 1.0f));       //선생님의 3번째 지시 오디오 실행
-        seq.AppendInterval(8.0f);
         // 다음 단계로 이동하기 위한 콜백 함수를 추가합니다.
         seq.AppendCallback(() => CharacterMove());
 
@@ -123,31 +113,60 @@ public class Step01 : MonoBehaviour
         seq.Play();
     }
 
-    private void CharacterMove()
+    public void CharacterMove()
     {
-        Sequence seq01 = DOTween.Sequence();
-        seq01.Append(teacher.DORotate(new Vector3(0f, 90f, 0f), 0.5f));
-        seq01.Join(teacher.DOMove(new Vector3(4.9f, 0.129f, -1.45f), 2.0f));
-        seq01.Append(teacher.DORotate(new Vector3(0f, -90f, 0f), 2f));
-        Sequence seq02 = DOTween.Sequence();
-        seq02.Append(kid01.DORotate(new Vector3(0f, 90f, 0f), 2.0f));
-        seq02.Join(kid01.DOMoveZ(2f, 5f));
-    }
-    private void FireWarningClipChange()
-    {
-        float startTime = 2.0f;
+        Sequence seq = DOTween.Sequence();
+        float startVal = 0.0f;
+        float endVal = 1.0f;
 
-        // 오디오 클립의 새로운 길이 (시작 시간부터 끝까지)
-        int samplesToCopy = fireWarningClip.samples - (int)(startTime * fireWarningClip.frequency);
+        seq.AppendCallback(() =>
+        {
+            teacherAni.SetTrigger("moveTrigger");
+            Tween floatTween = DOTween.To(() => startVal, x => startVal = x, endVal, 1.0f).SetUpdate(true)
+            .OnUpdate(() => teacherAni.SetFloat("moveSpeed", startVal));
 
-        // 새로운 AudioClip을 생성하고 오디오 데이터를 복사합니다.
-        AudioClip newClip = AudioClip.Create("NewClip", samplesToCopy, fireWarningClip.channels, fireWarningClip.frequency, false);
-        float[] data = new float[samplesToCopy * fireWarningClip.channels];
-        fireWarningClip.GetData(data, (int)(startTime * fireWarningClip.frequency));
-        newClip.SetData(data, 0);
+            Sequence seq01 = DOTween.Sequence();
+            seq01.Append(floatTween);
+            seq01.Join(teacherTr.DORotate(new Vector3(0f, 90f, 0f), 0.5f));
+            seq01.Join(teacherTr.DOMove(new Vector3(5f, 0.05f, -1.5f), 5.0f));
+        });
+        seq.AppendInterval(1.0f);
+        seq.AppendCallback(() =>
+        {
+            Tween floatTween = DOTween.To(() => startVal, x => startVal = x, endVal, 0.0f).SetUpdate(true)
+            .OnUpdate(() => teacherAni.SetFloat("moveSpeed", startVal));
+        });
+        seq.AppendInterval(1.0f);
+        seq.Append(teacherTr.DORotate(new Vector3(0f, -90f, 0f), 1.5f));
+        seq.AppendCallback(() =>
+        {
+            teacherAni.SetTrigger("TalkTrigger");
+            teacherSource.PlayOneShot(teacherGuid03, 1.0f);
+        });
+        seq.AppendInterval(7.0f);
+        seq.AppendCallback(() =>
+        {
+            teacherAni.SetFloat("moveSpeed", 0.0f);
+            teacherAni.SetTrigger("moveTrigger");
+            startVal = 0.0f;
+            endVal = 1.0f;
+            Sequence seq01 = DOTween.Sequence();
+            for (int i = 0; i < kidAnimations.Count; i++)
+            {
+                Tween floatTween = DOTween.To(() => startVal, x => startVal = x, endVal, 1.0f).SetUpdate(true)
+                .OnUpdate(() => kidAnimations[i].SetFloat("moveSpeed", startVal));
+                seq01.Append(floatTween);
+                seq01.Join(kidsTr[i].DORotate(new Vector3(0f, 90f, 0f), 5.0f));
+            }
 
-        // 새로운 AudioClip을 AudioSource에 할당하여 재생합니다.
-        warningAudioSource.clip = newClip; 
-        audioManager.FireWarningPlay(warningAudioSource, newClip);
+            seq01.AppendCallback(() =>
+            {
+                kidsTr[0].DOMove(new Vector3(3.5f, 0.05f, -1.5f), 5.0f);
+                kidsTr[1].DOMove(new Vector3(2.0f, 0.05f, -1.5f), 5.0f);
+                kidsTr[2].DOMove(new Vector3(0.5f, 0.05f, -1.5f), 5.0f);
+            });
+
+            seq01.AppendCallback(() =>tweenManager.CloseUI(transform, nextStep, 1.0f));    // 창을 닫고 다음 스텝을 여는 트윈 메서드 실행
+        });
     }
 }
