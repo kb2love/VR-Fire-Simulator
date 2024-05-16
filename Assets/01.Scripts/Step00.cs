@@ -23,6 +23,7 @@ public class Step00 : MonoBehaviour
 
         audioManager = gameObject.AddComponent<AudioManager>();                        // 네임 스페이스로 제작 해 놓은 클래스(모노비헤이버상속)
         audioManager.NarrationPlay(audioSource, narration01, 1.0f);                    //생성된 오디오 매니저 클라스의 나레이션 메서드를 사용 할 수 있다
+        
     }
     void OnDisable()
     {

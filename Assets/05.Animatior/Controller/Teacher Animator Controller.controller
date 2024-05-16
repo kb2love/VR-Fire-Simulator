@@ -21,7 +21,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: -203655887218126122, guid: 08b609c21db5f4f4fa8a87e054f1a962, type: 3}
+  m_Motion: {fileID: -203655887218126122, guid: 509c24d9a9982104d8afe3d0297ef4c0, type: 3}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -36,7 +36,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
-    m_ConditionEvent: IsSurprise
+    m_ConditionEvent: LookAround
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -8171587123213743139}
@@ -73,7 +73,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: -203655887218126122, guid: 0ef2d15825a5676459f5193f63093834, type: 3}
+  m_Motion: {fileID: -203655887218126122, guid: de09dc5da3f65114d8ff1df3d21c772d, type: 3}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -88,7 +88,7 @@ BlendTree:
   m_Name: Blend Tree
   m_Childs:
   - serializedVersion: 2
-    m_Motion: {fileID: -203655887218126122, guid: 08b609c21db5f4f4fa8a87e054f1a962, type: 3}
+    m_Motion: {fileID: -203655887218126122, guid: 509c24d9a9982104d8afe3d0297ef4c0, type: 3}
     m_Threshold: 0
     m_Position: {x: 0, y: 0}
     m_TimeScale: 1
@@ -96,7 +96,7 @@ BlendTree:
     m_DirectBlendParameter: moveSpeed
     m_Mirror: 0
   - serializedVersion: 2
-    m_Motion: {fileID: -203655887218126122, guid: d9169badaf5daeb469c91431c086e8da, type: 3}
+    m_Motion: {fileID: -203655887218126122, guid: 0d895f56a5123b74d8e1e30b66682b1b, type: 3}
     m_Threshold: 1
     m_Position: {x: 0, y: 0}
     m_TimeScale: 1
@@ -125,7 +125,7 @@ AnimatorController:
     m_DefaultInt: 0
     m_DefaultBool: 0
     m_Controller: {fileID: 9100000}
-  - m_Name: IsSurprise
+  - m_Name: LookAround
     m_Type: 9
     m_DefaultFloat: 0
     m_DefaultInt: 0
@@ -271,7 +271,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Talking (1)
+  m_Name: WarningTalking
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
@@ -285,7 +285,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: -203655887218126122, guid: e228b902b1992214595ec6ea88c06b21, type: 3}
+  m_Motion: {fileID: -203655887218126122, guid: 32eaeb418de1af34fb30303234cec8db, type: 3}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 

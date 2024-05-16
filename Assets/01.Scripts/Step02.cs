@@ -46,7 +46,7 @@ public class Step02 : MonoBehaviour
         audioSource.PlayOneShot(clikClip, 1.0f);            // 중복이 되는 단발성 오디오 플레이
         Sequence seq = DOTween.Sequence();
         seq.AppendCallback(() => tweenManager.CloseUI(transform));     // 창을 닫고 다음 스텝을 여는 트윈 메서드 실행
-        seq.AppendCallback(() => playerTr.DOMove(new Vector3(-1.0f, 0.35f, -1.5f), 5.0f));  //플레이어를 이동시킴
-
+        seq.Append(playerTr.DOMove(new Vector3(-1.0f, playerTr.position.y, -1.5f), 5.0f));  //플레이어를 이동킨다
+        seq.Append(playerTr.DORotate(new Vector3(0f, 90f, 0f), 1.0f).OnComplete(() => tweenManager.CloseUI(transform, nextStep, 1.0f))); //플레이어를 회전시키고 다음스탭으로 넘어간다
     }
 }

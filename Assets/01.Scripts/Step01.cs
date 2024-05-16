@@ -29,21 +29,26 @@ public class Step01 : MonoBehaviour
 
     [SerializeField] AudioClip clikClip;            // 클릭 오디오 클립
 
-    [SerializeField] GameObject nextStep;           // 다음 스탭으로 넘어가기 위한 오브젝트
 
     [Header("Animator")]
 
     [SerializeField] Animator teacherAni;           // 선생님의 애니메이터
 
-    [SerializeField] List<Animator> kidAnimations = new List<Animator>();
+    [SerializeField] Animator[] kidAnimations;
 
-    [Header("Character")]
+    [Header("Transform")]
 
     [SerializeField] Transform playerTr;              // 플레이어를 이동시킬 트랜스폼
 
     [SerializeField] Transform teacherTr;             // 선생님을 이동시킬 트랜스폼
 
-    [SerializeField] List<Transform> kidsTr = new List<Transform>();
+    [SerializeField] Transform[] kidsTr;
+
+    [SerializeField] Transform[] targetTr;      // 이동할 위치
+
+    [SerializeField] GameObject nextStep;           // 다음 스탭으로 넘어가기 위한 오브젝트
+
+    [SerializeField] GameObject fire;
 
     AudioManager audioManager;                  // 오디오 매니저를 사용하기 위한 변수
 
@@ -56,8 +61,9 @@ public class Step01 : MonoBehaviour
         audioManager = gameObject.AddComponent<AudioManager>(); // 네임 스페이스로 제작 해 놓은 클래스(모노비헤이버상속)
         audioManager.NarrationPlay(stepAudioSource, narration, 1.0f);      //생성된 오디오 매니저 클라스의 나레이션 메서드를 사용 할 수 있다
 
+        targetTr = GameObject.Find("TargetPosition").GetComponentsInChildren<Transform>();
 
-        teacherAni.SetTrigger("TalikTrigger");
+        teacherAni.SetTrigger("TalkTrigger");
     }
     void OnDisable()
     {
@@ -77,24 +83,22 @@ public class Step01 : MonoBehaviour
     {
         teacherSource.PlayOneShot(clikClip, 1.0f);            // 중복이 되는 단발성 오디오 플레이
         Sequence seq = DOTween.Sequence();
-        // 창을 닫는 트윈 메서드를 추가합니다.
-        seq.AppendCallback(() => tweenManager.CloseUI(transform));
+        seq.AppendCallback(() => tweenManager.CloseUI(transform));  //UI를 닫는다
         seq.AppendInterval(1.0f);
         seq.AppendCallback(() =>
         {
             Debug.Log("asd");
-            // 화재 경고음 재생과 선생님 및 학생 애니메이션 실행
-            audioManager.FireWarningPlay(warningAudioSource, fireWarningClip);
-            teacherAni.SetTrigger("IsSurprise");
-
-            for (int i = 0; i < kidAnimations.Count; i++)
+            audioManager.LoopAudioPlay(warningAudioSource, fireWarningClip);  // 화재 경고음 재생
+            teacherAni.SetTrigger("LookAround");            // 선생님이 불이 난걸 알아챈다
+            fire.SetActive(true);                           // 불을 켜준다
+            for (int i = 0; i < kidAnimations.Length; i++)
             {
-                kidAnimations[i].SetTrigger("StandUp");
-                kidsTr[i].DOMoveZ(1.11f, 1.0f);
+                kidAnimations[i].SetTrigger("StandUp");     // 아이들이 일어난다
+                kidsTr[i].DOMoveZ(1.11f, 1.0f);             // 일어났을때 의자에 떨어지도록 약간 움직여준다
             }
         });
         seq.AppendInterval(2.0f);
-        seq.AppendCallback(() => warningAudioSource.clip = fireWarningClipChange);  //화재경고음의 시작부분을 바꿀 시퀀스
+        seq.AppendCallback(() => audioManager.LoopAudioPlay(warningAudioSource, fireWarningClipChange));  //화재경고음의 시작부분을 바꿀 시퀀스
         seq.AppendInterval(4.0f);
         seq.AppendCallback(() =>
         {
@@ -106,11 +110,8 @@ public class Step01 : MonoBehaviour
         seq.AppendInterval(7.0f);
         seq.AppendCallback(() => teacherSource.PlayOneShot(teacherGuid02, 1.0f));       //선생님의 2번째 지시 오디오 실행
         seq.AppendInterval(7.0f);
-        // 다음 단계로 이동하기 위한 콜백 함수를 추가합니다.
-        seq.AppendCallback(() => CharacterMove());
+        seq.AppendCallback(() => CharacterMove());              //캐릭터들의 움직임을 실행한다
 
-        // 시퀀스를 시작합니다.
-        seq.Play();
     }
 
     public void CharacterMove()
@@ -120,53 +121,69 @@ public class Step01 : MonoBehaviour
         float endVal = 1.0f;
 
         seq.AppendCallback(() =>
-        {
-            teacherAni.SetTrigger("moveTrigger");
-            Tween floatTween = DOTween.To(() => startVal, x => startVal = x, endVal, 1.0f).SetUpdate(true)
+        {   
+            teacherAni.SetTrigger("moveTrigger");   // 선생님의 무브블랜드를 켜준다
+            Tween floatTween = DOTween.To(() => startVal, x => startVal = x, endVal, 1.0f).SetUpdate(true)  // startVal을 1로 만드는걸 DOTween.To 를써서 보간시켜 1로 만들어주는 트윈
             .OnUpdate(() => teacherAni.SetFloat("moveSpeed", startVal));
 
-            Sequence seq01 = DOTween.Sequence();
-            seq01.Append(floatTween);
-            seq01.Join(teacherTr.DORotate(new Vector3(0f, 90f, 0f), 0.5f));
-            seq01.Join(teacherTr.DOMove(new Vector3(5f, 0.05f, -1.5f), 5.0f));
+            Sequence seq01 = DOTween.Sequence();    // 새로운 시퀀스를 만든다
+            seq01.Append(floatTween);               // 보간을 넣어준다
+            seq01.Join(teacherTr.DORotate(new Vector3(0f, 90f, 0f), 0.5f));     // 동시에 움직인다
+            seq01.Join(teacherTr.DOMove(targetTr[4].position, 5.0f));  // 동시에 회전한다
         });
-        seq.AppendInterval(1.0f);
+        seq.AppendInterval(4.0f);
         seq.AppendCallback(() =>
         {
-            Tween floatTween = DOTween.To(() => startVal, x => startVal = x, endVal, 0.0f).SetUpdate(true)
+            endVal = 0.0f;  //endVal 을다시 0으로 초기화시켜 선생님이 걷는걸 멈추게한다
+            Tween floatTween = DOTween.To(() => startVal, x => startVal = x, endVal, 1.0f).SetUpdate(true)
             .OnUpdate(() => teacherAni.SetFloat("moveSpeed", startVal));
         });
         seq.AppendInterval(1.0f);
         seq.Append(teacherTr.DORotate(new Vector3(0f, -90f, 0f), 1.5f));
         seq.AppendCallback(() =>
         {
-            teacherAni.SetTrigger("TalkTrigger");
-            teacherSource.PlayOneShot(teacherGuid03, 1.0f);
+            teacherAni.SetTrigger("TalkTrigger");           // 줄을 서라는 선생님의 지시 애니메이션 실행
+            teacherSource.PlayOneShot(teacherGuid03, 1.0f); // 줄을 서라는 선생님의 지시 오디오 실행
         });
         seq.AppendInterval(7.0f);
         seq.AppendCallback(() =>
         {
-            teacherAni.SetFloat("moveSpeed", 0.0f);
-            teacherAni.SetTrigger("moveTrigger");
-            startVal = 0.0f;
-            endVal = 1.0f;
-            Sequence seq01 = DOTween.Sequence();
-            for (int i = 0; i < kidAnimations.Count; i++)
-            {
-                Tween floatTween = DOTween.To(() => startVal, x => startVal = x, endVal, 1.0f).SetUpdate(true)
-                .OnUpdate(() => kidAnimations[i].SetFloat("moveSpeed", startVal));
-                seq01.Append(floatTween);
-                seq01.Join(kidsTr[i].DORotate(new Vector3(0f, 90f, 0f), 5.0f));
-            }
+            teacherAni.SetTrigger("moveTrigger");           // 말이끝나면 다시 Idle 상태로 바꿔준다
+            endVal = 1.0f;                                  // 아이들의 움직임을 위해 endVal = 1.0으로 초기화 한다
+            Sequence seq01 = DOTween.Sequence(); 
 
+            Tween lerpTween = DOTween.To(() => startVal, x => startVal = x, endVal, 1.0f)
+                .SetUpdate(true)
+                .OnUpdate(() =>
+                {
+                    kidAnimations[0].SetFloat("moveSpeed", startVal);
+                    kidAnimations[1].SetFloat("moveSpeed", startVal);
+                    kidAnimations[2].SetFloat("moveSpeed", startVal);
+
+                });
+
+            seq01.Append(lerpTween);
+            seq01.Join(kidsTr[0].DORotate(new Vector3(0f, 90f, 0f), 5.0f));
+            seq01.Join(kidsTr[1].DORotate(new Vector3(0f, 90f, 0f), 5.0f));
+            seq01.Join(kidsTr[2].DORotate(new Vector3(0f, 90f, 0f), 5.0f));
+
+            seq01.Join(kidsTr[0].DOMove(targetTr[3].position, 5.0f));
+            seq01.Join(kidsTr[1].DOMove(targetTr[2].position, 5.0f));
+            seq01.Join(kidsTr[2].DOMove(targetTr[1].position, 5.0f));
             seq01.AppendCallback(() =>
             {
-                kidsTr[0].DOMove(new Vector3(3.5f, 0.05f, -1.5f), 5.0f);
-                kidsTr[1].DOMove(new Vector3(2.0f, 0.05f, -1.5f), 5.0f);
-                kidsTr[2].DOMove(new Vector3(0.5f, 0.05f, -1.5f), 5.0f);
-            });
+                endVal = 0.0f;
+                Tween lerpTween = DOTween.To(() => startVal, x => startVal = x, endVal, 1.0f)
+                .SetUpdate(true)
+                .OnUpdate(() =>
+                {
+                    kidAnimations[0].SetFloat("moveSpeed", startVal);
+                    kidAnimations[1].SetFloat("moveSpeed", startVal);
+                    kidAnimations[2].SetFloat("moveSpeed", startVal);
 
-            seq01.AppendCallback(() =>tweenManager.CloseUI(transform, nextStep, 1.0f));    // 창을 닫고 다음 스텝을 여는 트윈 메서드 실행
+                });
+            });
+            seq01.AppendCallback(() => tweenManager.CloseUI(transform, nextStep, 1.0f));    // 창을 닫고 다음 스텝을 여는 트윈 메서드 실행
         });
     }
 }

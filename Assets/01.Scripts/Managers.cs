@@ -10,7 +10,7 @@ namespace VrFireSim
         {
             StartCoroutine(DelayRoutine(audioSource, audioClip, delayTime));
         }
-        public void FireWarningPlay(AudioSource audioSource, AudioClip audioClip)
+        public void LoopAudioPlay(AudioSource audioSource, AudioClip audioClip)
         {
             audioSource.clip = audioClip;
             audioSource.loop = true;
