@@ -12,9 +12,6 @@ public class Step03 : MonoBehaviour
     [SerializeField] AudioClip clikClip;        // 클릭 오디오 클립
     [SerializeField] AudioClip narration03;     // 나레이션 오디오 클립
     [SerializeField] AudioClip teacherGuid04;   // 선생님의 네번째 지시 클립
-    [SerializeField] AudioClip coughtClip01;    // 기침하는 오디오 클립
-    [SerializeField] AudioClip coughtClip02;
-    [SerializeField] AudioClip coughtClip03;
 
     [Header("Animator")]
     [SerializeField] Animator[] kidsAni;
