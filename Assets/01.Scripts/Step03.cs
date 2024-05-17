@@ -5,7 +5,6 @@ public class Step03 : MonoBehaviour
 {
     [Header("AudioSource")]
     [SerializeField] AudioSource stepSource;   // 나레이션을 플레이할 오디오 소스
-    [SerializeField] AudioSource[] kidsSource;
     [SerializeField] AudioSource teacherSource;
 
     [Header("AudioClip")]
@@ -65,7 +64,7 @@ public class Step03 : MonoBehaviour
         seq.AppendInterval(0.5f)
            .AppendCallback(() =>
            {
-               teacherAni.SetTrigger("TalkTrigger");
+               teacherAni.SetBool("IsTalk", true);
                teacherSource.PlayOneShot(teacherGuid04, 1.0f);
            })
            .AppendInterval(4.0f)
@@ -74,6 +73,7 @@ public class Step03 : MonoBehaviour
 
     private void CharacterMove()
     {
+        teacherAni.SetBool("IsTalk", false);
         Sequence seq = DOTween.Sequence();
 
         seq.Append(teacherTr.DORotate(new Vector3(0, 90f, 0), 1.5f))
@@ -87,7 +87,8 @@ public class Step03 : MonoBehaviour
            .AppendInterval(timeTp)
            .AppendCallback(() => FinalMove())
            .AppendInterval(timeTp)
-           .AppendCallback(() => EndMove());
+           .AppendCallback(() => EndMove())
+           .AppendCallback(() => tweenManager.CloseUI(transform, nextStep, 1.0f));
     }
 
     private void StartMove()            
@@ -137,6 +138,7 @@ public class Step03 : MonoBehaviour
     private void EndMove()
     {
         playerTr.DOMove(targetTr[11].position, 1.0f);
+        playerTr.DORotate(-Vector3.forward, 1.5f);
         endVal = 0.0f;
         Tween floatTween = DOTween.To(() => startVal, x => startVal = x, endVal, 1.0f).SetUpdate(true)
             .OnUpdate(() =>

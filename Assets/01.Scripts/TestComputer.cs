@@ -8,6 +8,7 @@ public class TestComputer : MonoBehaviour
     [SerializeField] Step01 step01;
     [SerializeField] Step02 step02;
     [SerializeField] Step03 step03;
+    [SerializeField] Step04 step04; 
 
     void Update()
     {
@@ -22,6 +23,8 @@ public class TestComputer : MonoBehaviour
             step02.GetComponent<Step02>().OnClickMethods();
         else if (Input.GetKeyDown(KeyCode.Alpha4))
             step03.GetComponent<Step03>().OnClickMethods();
+        else if(  Input.GetKeyDown(KeyCode.Alpha5))
+            step04.GetComponent<Step04>().OnClickMethods();
 
     }
 }

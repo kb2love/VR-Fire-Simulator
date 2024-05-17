@@ -19,6 +19,7 @@ public class Step01 : MonoBehaviour
     [SerializeField] AudioClip fireWarningClip;         // 화재경고음 클립
     [SerializeField] AudioClip fireWarningClipChange;   // 화재 경고음을 반복시키기 위한 클립 
     [SerializeField] AudioClip clikClip;            // 클릭 오디오 클립
+    [SerializeField] AudioClip fireClip;
 
     [Header("Animator")]
     [SerializeField] Animator teacherAni;           // 선생님의 애니메이터
@@ -49,7 +50,7 @@ public class Step01 : MonoBehaviour
 
         targetTr = GameObject.Find("TargetPosition").GetComponentsInChildren<Transform>();
 
-        teacherAni.SetBool("IsTalk", true);
+        
     }
 
     void OnDisable()
@@ -108,9 +109,9 @@ public class Step01 : MonoBehaviour
 
         seq.AppendCallback(() => MoveTeacher());
         seq.AppendInterval(4.0f);
+        seq.Append(teacherTr.DORotate(new Vector3(0f, -90f, 0f), 1.5f));
         seq.AppendCallback(() => StopCharacter());
         seq.AppendInterval(1.0f);
-        seq.Append(teacherTr.DORotate(new Vector3(0f, -90f, 0f), 1.5f));
         seq.AppendCallback(() => PlayTeacherGuidance(teacherGuid03, "IsTalk"));
         seq.AppendInterval(7.0f);
         seq.AppendCallback(() => StartKidsMove(startVal, endVal));
@@ -144,7 +145,7 @@ public class Step01 : MonoBehaviour
     private void StartKidsMove(float startVal, float endVal)
     {
         endVal = 1.0f;
-
+        audioManager.LoopAudioPlay(warningAudioSource, fireClip);
         Sequence kidsSeq = DOTween.Sequence();
 
         Tween lerpTween = DOTween.To(() => startVal, x => startVal = x, endVal, 1.0f)
@@ -171,6 +172,7 @@ public class Step01 : MonoBehaviour
 
     private void StopKidsMove(float startVal, float endVal)
     {
+        teacherAni.SetBool("IsTalk", false);
         endVal = 0.0f;
         Tween lerpTween = DOTween.To(() => startVal, x => startVal = x, endVal, 1.0f)
             .SetUpdate(true)
