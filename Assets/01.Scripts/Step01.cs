@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Experimental.GlobalIllumination;
+using UnityEngine.Rendering.PostProcessing;
 using VrFireSim;
 
 public class Step01 : MonoBehaviour
@@ -32,8 +33,11 @@ public class Step01 : MonoBehaviour
     [SerializeField] Transform[] kidsTr;
     [SerializeField] Transform[] targetTr;      // 이동할 위치
 
+    [Header("라이트 세팅")]
     [SerializeField] Light directionLight;
-    [SerializeField] LightingSettings lightingSettings;
+    [SerializeField] PostProcessVolume postProcessVolume;
+    private AutoExposure autoExposure;
+    private ColorGrading colorGrading;
 
     [SerializeField] GameObject nextStep;           // 다음 스탭으로 넘어가기 위한 오브젝트
     [SerializeField] GameObject fire;
@@ -55,7 +59,14 @@ public class Step01 : MonoBehaviour
 
         targetTr = GameObject.Find("TargetPosition").GetComponentsInChildren<Transform>();
 
-        
+        // PostProcessVolume에서 AutoExposure와 ColorGrading 설정을 가져옵니다.
+        postProcessVolume.profile.TryGetSettings(out autoExposure);
+        postProcessVolume.profile.TryGetSettings(out colorGrading);
+
+        // 초기 설정 값 저장
+        autoExposure.minLuminance.value = -1f;
+        autoExposure.maxLuminance.value = -1f;
+
     }
 
     void OnDisable()
@@ -87,7 +98,7 @@ public class Step01 : MonoBehaviour
             audioManager.LoopAudioPlay(warningAudioSource, fireWarningClipChange);
             spotLight.SetActive(false);
             directionLight.intensity = 0.0f;
-
+            DarkenScene();
         });
         seq.AppendInterval(4.0f);
         seq.AppendCallback(() => PlayTeacherGuidance(teacherGuid01));
@@ -194,5 +205,22 @@ public class Step01 : MonoBehaviour
                     kidAnimation.SetFloat("moveSpeed", startVal);
                 }
             });
+    }
+    // 어둡게
+    void DarkenScene()
+    {
+        // Exposure 값 조정 (어둡게)
+        autoExposure.minLuminance.value = -2f;
+        autoExposure.maxLuminance.value = -2f;
+
+        // 필요에 따라 색상 보정 추가
+        colorGrading.postExposure.value = -1f; // 어둡게 보정
+    }
+    // 원래 값으로 되돌리는 메서드
+    public void ResetLighting()
+    {
+        autoExposure.minLuminance.value = -1f;
+        autoExposure.maxLuminance.value = -1f;
+        colorGrading.postExposure.value = 0f; // 기본 값
     }
 }

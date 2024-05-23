@@ -14589,7 +14589,7 @@ GameObject:
   - component: {fileID: 1179982584}
   - component: {fileID: 1179982583}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: PostProcess
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14607,7 +14607,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b9a305e18de0c04dbd257a21cd47087, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sharedProfile: {fileID: 0}
+  sharedProfile: {fileID: 11400000, guid: 5592b8ccb2d487e4f89d2eefc2de1647, type: 2}
   isGlobal: 0
   blendDistance: 0
   weight: 1
@@ -25360,7 +25360,7 @@ MonoBehaviour:
   - {fileID: 69273300}
   targetTr: []
   directionLight: {fileID: 705507994}
-  lightingSettings: {fileID: 4890085278179872738, guid: 62c1bfef61a93a94dbfe6310620eede8, type: 2}
+  postProcessVolume: {fileID: 1179982583}
   nextStep: {fileID: 1824265153}
   fire: {fileID: 601684055}
   spotLight: {fileID: 240810295}
