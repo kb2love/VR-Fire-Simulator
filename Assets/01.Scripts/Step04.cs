@@ -21,7 +21,7 @@ public class Step04 : MonoBehaviour
 
     [SerializeField] AudioClip fireClip;     // 추가적인 나레이션 오디오 클립
 
-    [SerializeField] AudioClip littleFireClip;  // 불이 꺼지고나서 바뀔 오디오 클립
+    [SerializeField] AudioClip warningClip;  // 불이 꺼지고나서 바뀔 오디오 클립
 
     [Header("Transform")]
 
@@ -40,6 +40,8 @@ public class Step04 : MonoBehaviour
     [SerializeField] GameObject fire;           // 불이 완전히 끄게 할 오브젝트
 
     [SerializeField] GameObject nextStep;       // 다음 스탭으로 넘어가기 위한 오브젝트
+
+    [Header("소화기")]
 
     [SerializeField] GameObject digestion;      // 소화기가 내뿜을 소화제 파티클 오브젝트
 
@@ -60,6 +62,7 @@ public class Step04 : MonoBehaviour
 
         audioManager = gameObject.AddComponent<AudioManager>();                        // 네임 스페이스로 제작 해 놓은 클래스(모노비헤이버상속)
         audioManager.NarrationPlay(audioSource, narration04, 1.0f);                    //생성된 오디오 매니저 클라스의 나레이션 메서드를 사용 할 수 있다
+        transform.DORotate(new Vector3(0, 180, 0), 1.5f);
         float originPos = arrowImage.position.y;                    // 화살표를 원래 위치로 돌리기 위한 값
         float downPos = originPos - 0.5f;                           // 화살표를 아래로 내리기 위한 값
         fireMat = fireParticle.material;                            // fireMat 에 파티클렌더러의 메테리얼 값을 저장
@@ -116,7 +119,7 @@ public class Step04 : MonoBehaviour
             fireAni.SetTrigger("CloseTrigger");
             digestion.SetActive(false);
             fire.SetActive(false);
-            audioManager.LoopAudioPlay(fireSource, littleFireClip);
+            audioManager.LoopAudioPlay(fireSource, warningClip);
         });
         seq.AppendInterval(1.0f);
         seq.AppendCallback(() => tweenManager.CloseUI(transform, nextStep, 1.0f));

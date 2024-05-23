@@ -2,6 +2,7 @@ using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Experimental.GlobalIllumination;
 using VrFireSim;
 
 public class Step01 : MonoBehaviour
@@ -31,8 +32,12 @@ public class Step01 : MonoBehaviour
     [SerializeField] Transform[] kidsTr;
     [SerializeField] Transform[] targetTr;      // 이동할 위치
 
+    [SerializeField] Light directionLight;
+    [SerializeField] LightingSettings lightingSettings;
+
     [SerializeField] GameObject nextStep;           // 다음 스탭으로 넘어가기 위한 오브젝트
     [SerializeField] GameObject fire;
+    [SerializeField] GameObject spotLight;
 
     AudioManager audioManager;                  // 오디오 매니저를 사용하기 위한 변수
     TweenManager tweenManager;                  // 트윈 매니저를 사용하기 위한 변수
@@ -77,11 +82,17 @@ public class Step01 : MonoBehaviour
         seq.AppendInterval(1.0f);
         seq.AppendCallback(HandleFireWarning);
         seq.AppendInterval(2.0f);
-        seq.AppendCallback(() => audioManager.LoopAudioPlay(warningAudioSource, fireWarningClipChange));
+        seq.AppendCallback(() =>
+        {
+            audioManager.LoopAudioPlay(warningAudioSource, fireWarningClipChange);
+            spotLight.SetActive(false);
+            directionLight.intensity = 0.0f;
+
+        });
         seq.AppendInterval(4.0f);
-        seq.AppendCallback(() => PlayTeacherGuidance(teacherGuid01, "IsTalk"));
+        seq.AppendCallback(() => PlayTeacherGuidance(teacherGuid01));
         seq.AppendInterval(7.0f);
-        seq.AppendCallback(() => teacherSource.PlayOneShot(teacherGuid02, 1.0f));
+        seq.AppendCallback(() => PlayTeacherGuidance(teacherGuid02));
         seq.AppendInterval(7.0f);
         seq.AppendCallback(CharacterMove);
     }
@@ -106,13 +117,13 @@ public class Step01 : MonoBehaviour
     public void CharacterMove()
     {
         Sequence seq = DOTween.Sequence();
-
+        teacherAni.SetBool("IsTalk", true);
         seq.AppendCallback(() => MoveTeacher());
         seq.AppendInterval(4.0f);
         seq.Append(teacherTr.DORotate(new Vector3(0f, -90f, 0f), 1.5f));
         seq.AppendCallback(() => StopCharacter());
         seq.AppendInterval(1.0f);
-        seq.AppendCallback(() => PlayTeacherGuidance(teacherGuid03, "IsTalk"));
+        seq.AppendCallback(() => PlayTeacherGuidance(teacherGuid03));
         seq.AppendInterval(7.0f);
         seq.AppendCallback(() => StartKidsMove(startVal, endVal));
     }
@@ -137,9 +148,9 @@ public class Step01 : MonoBehaviour
     }
 
 
-    private void PlayTeacherGuidance(AudioClip clip, string _bool)
+    private void PlayTeacherGuidance(AudioClip clip)
     {
-        teacherAni.SetBool(_bool, true);
+        teacherAni.SetBool("IsTalk", true);
         teacherSource.PlayOneShot(clip, 1.0f);
     }
     private void StartKidsMove(float startVal, float endVal)

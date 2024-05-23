@@ -13,7 +13,10 @@ public class Step02 : MonoBehaviour
 
     [SerializeField] GameObject nextStep;       // 다음 스탭으로 넘어가기 위한 오브젝트
 
+
     [SerializeField] Transform playerTr;
+
+    
 
     AudioManager audioManager;                  // 오디오 매니저를 사용하기 위한 변수
 

@@ -29,6 +29,7 @@ public class Step03 : MonoBehaviour
     float startVal = 0.0f;
     float endVal = 1.0f;
     float timeTp = 0.5f;
+    float moveTime = 5.0f;
     void OnEnable()
     {
         tweenManager = new TweenManager();
@@ -93,7 +94,7 @@ public class Step03 : MonoBehaviour
 
     private void StartMove()            
     {
-        teacherAni.SetTrigger("moveTrigger");
+        teacherAni.SetBool("IsTalk", false);
         Tween floatTween = DOTween.To(() => startVal, x => startVal = x, endVal, 1.0f).SetUpdate(true)
             .OnUpdate(() =>
             {
@@ -108,36 +109,36 @@ public class Step03 : MonoBehaviour
     }
     private void SeconMove()
     {
-        kidsTr[0].DOMove(targetTr[8].position, 1.0f);
-        kidsTr[1].DOMove(targetTr[6].position, 1.0f);
-        kidsTr[2].DOMove(targetTr[5].position, 1.0f);
-        playerTr.DOMove(targetTr[4].position, 1.0f);
+        kidsTr[0].DOMove(targetTr[8].position, moveTime);
+        kidsTr[1].DOMove(targetTr[6].position, moveTime);
+        kidsTr[2].DOMove(targetTr[5].position, moveTime);
+        playerTr.DOMove(targetTr[4].position, moveTime);
     }
     private void MoveCharacters(Transform teacherTarget, Transform kid1Target, Transform kid2Target, Transform kid3Target, Transform playerTarget)
     {
-        teacherTr.DOMove(teacherTarget.position, 1.0f);
-        kidsTr[0].DOMove(kid1Target.position, 1.0f);
-        kidsTr[1].DOMove(kid2Target.position, 1.0f);
-        kidsTr[2].DOMove(kid3Target.position, 1.0f);
-        playerTr.DOMove(playerTarget.position, 1.0f);
+        teacherTr.DOMove(teacherTarget.position, moveTime);
+        kidsTr[0].DOMove(kid1Target.position, moveTime);
+        kidsTr[1].DOMove(kid2Target.position, moveTime);
+        kidsTr[2].DOMove(kid3Target.position, moveTime);
+        playerTr.DOMove(playerTarget.position, moveTime);
     }
 
     private void ThirdMove()
     {
-        kidsTr[1].DOMove(targetTr[9].position, 1.0f);
-        kidsTr[2].DOMove(targetTr[6].position, 1.0f);
-        playerTr.DOMove(targetTr[5].position, 1.0f);
+        kidsTr[1].DOMove(targetTr[9].position, moveTime);
+        kidsTr[2].DOMove(targetTr[6].position, moveTime);
+        playerTr.DOMove(targetTr[5].position, moveTime);
     }
     private void FinalMove()
     {
         teacherTr.DORotate(Vector3.zero, 1.0f);
-        kidsTr[2].DOMove(targetTr[10].position, 1.0f);
-        playerTr.DOMove(targetTr[6].position, 1.0f);
+        kidsTr[2].DOMove(targetTr[10].position, moveTime);
+        playerTr.DOMove(targetTr[6].position, moveTime);
     }
 
     private void EndMove()
     {
-        playerTr.DOMove(targetTr[11].position, 1.0f);
+        playerTr.DOMove(targetTr[11].position, moveTime);
         playerTr.DORotate(-Vector3.forward, 1.5f);
         endVal = 0.0f;
         Tween floatTween = DOTween.To(() => startVal, x => startVal = x, endVal, 1.0f).SetUpdate(true)
